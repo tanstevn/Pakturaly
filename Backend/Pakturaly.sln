@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Api", "Pakturaly.Api\Pakturaly.Api.csproj", "{ED7795FA-12E4-4EEA-A083-BFF0F8DD8E13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Application", "Pakturaly.Application\Pakturaly.Application.csproj", "{C45B736B-A0BE-481F-BF53-F29FEA12E2D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Data", "Pakturaly.Data\Pakturaly.Data.csproj", "{74CC2BB7-E807-4069-B2EA-0C11B3278EBD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Infrastructure", "Pakturaly.Infrastructure\Pakturaly.Infrastructure.csproj", "{92A2D740-AD22-42C3-9BB9-BDD1CBFA62BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Shared", "Pakturaly.Shared\Pakturaly.Shared.csproj", "{932D585C-350E-40D3-87A4-5E3FCD862655}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests", "_Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED7795FA-12E4-4EEA-A083-BFF0F8DD8E13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED7795FA-12E4-4EEA-A083-BFF0F8DD8E13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED7795FA-12E4-4EEA-A083-BFF0F8DD8E13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED7795FA-12E4-4EEA-A083-BFF0F8DD8E13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C45B736B-A0BE-481F-BF53-F29FEA12E2D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C45B736B-A0BE-481F-BF53-F29FEA12E2D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C45B736B-A0BE-481F-BF53-F29FEA12E2D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C45B736B-A0BE-481F-BF53-F29FEA12E2D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74CC2BB7-E807-4069-B2EA-0C11B3278EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74CC2BB7-E807-4069-B2EA-0C11B3278EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74CC2BB7-E807-4069-B2EA-0C11B3278EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74CC2BB7-E807-4069-B2EA-0C11B3278EBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92A2D740-AD22-42C3-9BB9-BDD1CBFA62BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92A2D740-AD22-42C3-9BB9-BDD1CBFA62BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92A2D740-AD22-42C3-9BB9-BDD1CBFA62BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92A2D740-AD22-42C3-9BB9-BDD1CBFA62BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{932D585C-350E-40D3-87A4-5E3FCD862655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{932D585C-350E-40D3-87A4-5E3FCD862655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{932D585C-350E-40D3-87A4-5E3FCD862655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{932D585C-350E-40D3-87A4-5E3FCD862655}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {38C0EA75-280D-4C84-846A-BF57844D06E2}
+	EndGlobalSection
+EndGlobal
