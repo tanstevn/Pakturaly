@@ -1,4 +1,6 @@
-﻿using Scalar.AspNetCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Pakturaly.Data;
+using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pakturaly.Api {
@@ -27,6 +29,9 @@ namespace Pakturaly.Api {
                     return Task.CompletedTask;
                 });
             });
+
+            services.AddDbContext<ApplicationDbContext>(options => 
+                options.UseSqlServer(config.GetConnectionString("Pakturaly")));
         }
 
         public static void ConfigureHost(ConfigureHostBuilder host, IConfigurationManager config) {
