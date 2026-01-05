@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Pakturaly.Data;
 using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
@@ -20,7 +21,7 @@ namespace Pakturaly.Api {
                         Title = "Pakturaly API",
                         Version = "v1",
                         Description = "API for Pakturaly application",
-                        Contact = new() { 
+                        Contact = new() {
                             Name = "Pakturaly API Support",
                             Email = "tanstevenlester@gmail.com"
                         }
@@ -30,8 +31,18 @@ namespace Pakturaly.Api {
                 });
             });
 
-            services.AddDbContext<ApplicationDbContext>(options => 
+            services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("Pakturaly")));
+
+            services
+                .AddAuthentication(options => {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options => {
+                    options.Authority = "";
+                    options.Audience = "";
+                });
         }
 
         public static void ConfigureHost(ConfigureHostBuilder host, IConfigurationManager config) {
