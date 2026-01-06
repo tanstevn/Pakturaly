@@ -11,6 +11,9 @@
 **/*.csproj.user
 **/*.suo
 
+# Ignore local appsettings file
+appsettings.local.json
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
