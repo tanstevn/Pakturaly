@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Pakturaly.Data\Pakturaly.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Auth\Commands\" />
+  </ItemGroup>
+
 </Project>
