@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Pakturaly.Data;
+using Pakturaly.Infrastructure.Abstractions;
+using Pakturaly.Infrastructure.Services;
 using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
 
@@ -30,6 +31,9 @@ namespace Pakturaly.Api {
                     return Task.CompletedTask;
                 });
             });
+
+            services.AddHttpContextAccessor();
+            services.AddScoped<ITenantService, TenantService>();
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("Pakturaly")));
@@ -71,7 +75,16 @@ namespace Pakturaly.Api {
         }
 
         private static void InitializeRequiredServices(IApplicationBuilder app) {
+            using var scope = app
+                .ApplicationServices
+                .CreateScope();
 
+            scope.ServiceProvider
+                .GetRequiredService<ApplicationDbContext>()
+                .Database
+                .MigrateAsync()
+                .GetAwaiter()
+                .GetResult();
         }
     }
 }

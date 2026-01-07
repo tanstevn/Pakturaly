@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Pakturaly.Data\Pakturaly.Data.csproj" />
+  </ItemGroup>
+
 </Project>

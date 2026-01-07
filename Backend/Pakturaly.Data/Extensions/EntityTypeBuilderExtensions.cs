@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Pakturaly.Data.Abstractions;
 
 namespace Pakturaly.Data.Extensions {
@@ -8,8 +9,15 @@ namespace Pakturaly.Data.Extensions {
             where TEntity : class {
             builder.HasKey("Id");
 
-            builder.Property("Id")
-                .ValueGeneratedOnAdd();
+            var idProp = builder.Property("Id");
+
+            if (idProp.Metadata.ClrType != typeof(Guid)) {
+                idProp.ValueGeneratedOnAdd();
+            }
+            else {
+                idProp.HasDefaultValueSql("NEWSEQUENTIALID()")
+                    .ValueGeneratedOnAdd();
+            }
 
             return builder;
         }
@@ -24,27 +32,7 @@ namespace Pakturaly.Data.Extensions {
             return builder;
         }
 
-        public static EntityTypeBuilder<TEntity> ConfigureTenantId<TEntity>(this EntityTypeBuilder<TEntity> builder)
-            where TEntity : class {
-            if (!typeof(ITenantScoped).IsAssignableFrom(typeof(TEntity))) {
-                return builder;
-            }
-
-            builder.HasIndex(entity => ((ITenantScoped)entity).TenantId);
-            return builder;
-        }
-
-        public static EntityTypeBuilder<TEntity> ConfigureUserId<TEntity>(this EntityTypeBuilder<TEntity> builder)
-            where TEntity : class {
-            if (!typeof(IUserScoped).IsAssignableFrom(typeof(TEntity))) {
-                return builder;
-            }
-
-            builder.HasIndex(entity => ((IUserScoped)entity).UserId);
-            return builder;
-        }
-
-        public static EntityTypeBuilder<TEntity> ConfigureTenantAndUserIds<TEntity>(this EntityTypeBuilder<TEntity> builder)
+        public static EntityTypeBuilder<TEntity> ConfigureTenantUserIndex<TEntity>(this EntityTypeBuilder<TEntity> builder)
             where TEntity : class {
             if (!typeof(ITenantUserScoped).IsAssignableFrom(typeof(TEntity))) {
                 return builder;

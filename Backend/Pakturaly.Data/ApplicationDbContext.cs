@@ -2,12 +2,15 @@
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Pakturaly.Data.Abstractions;
 using Pakturaly.Data.Entities;
+using Pakturaly.Infrastructure.Abstractions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pakturaly.Data {
     public sealed class ApplicationDbContext : DbContext {
+        private readonly Guid _tenantId;
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService) : base(options) {
+            _tenantId = tenantService.TenantId;
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
@@ -16,6 +19,9 @@ namespace Pakturaly.Data {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
+
+            modelBuilder.Entity<User>().HasQueryFilter(user => user.TenantId == _tenantId);
+            
             base.OnModelCreating(modelBuilder);
         }
 
