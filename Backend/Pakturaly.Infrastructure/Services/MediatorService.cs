@@ -22,7 +22,7 @@ namespace Pakturaly.Infrastructure.Services {
                     return (IMediatorExecutor)Activator.CreateInstance(executorType)!;
                 });
 
-            var result = await requestHandler.ExecuteAsync(requestHandler, _serviceProvider, cancellationToken);
+            var result = await requestHandler.ExecuteAsync(request, _serviceProvider, cancellationToken);
             return (TResponse)result;
         }
     }

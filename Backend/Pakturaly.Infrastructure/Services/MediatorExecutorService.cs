@@ -13,7 +13,8 @@ namespace Pakturaly.Infrastructure.Services {
             RequestHandlerDelegate<TResponse> lastHandler = (token)
                 => requestHandler.HandleAsync((TRequest)request, token);
 
-            var pipelineBehaviors = serviceProvider.GetServices<IPipelineBehavior<TRequest, TResponse>>();
+            var pipelineBehaviors = serviceProvider.GetServices<IPipelineBehavior<TRequest, TResponse>>()
+                ?? [];
 
             var behaviorOrder = pipelineBehaviors
                 .OrderByDescending(behavior => behavior.GetType()
