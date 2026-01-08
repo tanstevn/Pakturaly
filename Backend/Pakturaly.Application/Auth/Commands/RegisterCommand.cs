@@ -86,7 +86,7 @@ namespace Pakturaly.Application.Auth.Commands {
             await transaction.CommitAsync(cancellationToken);
             return new RegisterCommandResult {
                 Id = user.Id,
-                FullName = string.Format("{0} {1}", user.GivenName, user.LastName),
+                FullName = user.FullName,
                 Email = user.Email,
                 AccessToken = string.Empty,
                 RefreshToken = string.Empty,
