@@ -13,8 +13,7 @@ namespace Pakturaly.Data.Configurations {
                 .IsRequired();
 
             builder.HasOne(userDetail => userDetail.User)
-                .WithOne(user => user.Details)
-                .IsRequired();
+                .WithOne(user => user.Details);
             
             builder.HasIndex(user => user.UserId)
                 .IsUnique();

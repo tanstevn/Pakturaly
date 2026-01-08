@@ -8,7 +8,6 @@ namespace Pakturaly.Data.Entities {
 
         public virtual Tenant? Tenant { get; set; }
         public virtual UserDetail? Details { get; set; }
-        public virtual UserCredential? Credentials { get; set; }
-        public virtual ICollection<UserRole>? Roles { get; set; }
+        public virtual UserIdentity? Identity { get; set; }
     }
 }

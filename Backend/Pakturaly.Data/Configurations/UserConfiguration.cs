@@ -15,11 +15,8 @@ namespace Pakturaly.Data.Configurations {
             builder.HasOne(user => user.Details)
                 .WithOne(userDetail => userDetail.User);
 
-            builder.HasOne(user => user.Credentials)
+            builder.HasOne(user => user.Identity)
                 .WithOne(userCred => userCred.User);
-
-            builder.HasMany(user => user.Roles)
-                .WithOne(userRole => userRole.User);
 
             base.Configure(builder);
         }
