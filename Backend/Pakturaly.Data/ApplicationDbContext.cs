@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Pakturaly.Data.Abstractions;
 using Pakturaly.Data.Entities;
@@ -6,7 +7,7 @@ using Pakturaly.Infrastructure.Abstractions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pakturaly.Data {
-    public sealed class ApplicationDbContext : DbContext {
+    public sealed class ApplicationDbContext : IdentityDbContext<UserCredential, UserRole, long> {
         private readonly Guid _tenantId;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService) : base(options) {

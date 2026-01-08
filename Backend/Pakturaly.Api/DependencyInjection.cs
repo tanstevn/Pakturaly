@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Pakturaly.Data;
+using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
 using Pakturaly.Infrastructure.Services;
 using Scalar.AspNetCore;
@@ -37,6 +39,18 @@ namespace Pakturaly.Api {
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("Pakturaly")));
+
+            services
+                .AddIdentity<UserCredential, IdentityRole>(options => {
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireNonAlphanumeric = true;
+                    options.Password.RequiredLength = 8;
+                    options.Password.RequiredUniqueChars = 1;
+                })
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
         }
 
         public static void ConfigureHost(ConfigureHostBuilder host, IConfigurationManager config) {
