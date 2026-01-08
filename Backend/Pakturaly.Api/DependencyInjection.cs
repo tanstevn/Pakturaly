@@ -41,7 +41,7 @@ namespace Pakturaly.Api {
                 options.UseSqlServer(config.GetConnectionString("Pakturaly")));
 
             services
-                .AddIdentity<UserCredential, IdentityRole>(options => {
+                .AddIdentity<UserCredential, UserRole>(options => {
                     options.Password.RequireDigit = true;
                     options.Password.RequireLowercase = true;
                     options.Password.RequireUppercase = true;
