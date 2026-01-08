@@ -1,5 +1,5 @@
 ﻿namespace Pakturaly.Application.Auth.Commands {
-    public class GenerateJwtTokenCommand {
+    public class LoginCommand {
 
     }
 }
