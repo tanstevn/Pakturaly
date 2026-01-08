@@ -7,8 +7,8 @@ namespace Pakturaly.Api.Controllers {
     public class AuthController : ControllerBase {
 
         [Authorize]
-        [HttpPost("login")]
-        public IActionResult Login() {
+        [HttpPost("register")]
+        public IActionResult Register() {
             return Ok();
         }
     }

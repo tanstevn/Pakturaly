@@ -12,11 +12,11 @@ namespace Pakturaly.Data.Configurations {
                 .HasForeignKey(user => user.TenantId)
                 .IsRequired();
 
-            builder.HasOne(user => user.Details)
-                .WithOne(userDetail => userDetail.User);
-
             builder.HasOne(user => user.Identity)
                 .WithOne(userCred => userCred.User);
+
+            builder.HasMany(user => user.RefreshTokens)
+                .WithOne(refreshToken => refreshToken.User);
 
             base.Configure(builder);
         }
