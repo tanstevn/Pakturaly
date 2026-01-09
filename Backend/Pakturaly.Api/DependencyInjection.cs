@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Pakturaly.Application;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
+using Pakturaly.Infrastructure.Extensions;
 using Pakturaly.Infrastructure.Services;
 using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
@@ -37,6 +39,9 @@ namespace Pakturaly.Api {
 
             services.AddHttpContextAccessor();
             services.AddScoped<ITenantService, TenantService>();
+
+            services.AddMediatorFromAssembly(typeof(MediatorAnchor).Assembly);
+            services.AddValidatorsFromAssembly(typeof(MediatorAnchor).Assembly);
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("Pakturaly")));
