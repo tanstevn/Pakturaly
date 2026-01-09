@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
@@ -71,25 +72,16 @@ namespace Pakturaly.Application.Auth.Commands {
             };
 
             var addUserIdentity = await _userManager.CreateAsync(user, request.Password);
-
             if (!addUserIdentity.Succeeded) {
                 throw new Exception(); // Must be customized exception that will handle by the exception handler middleware
             }
 
-            var addUserRole = await _userManager.AddToRoleAsync(user, RoleConstants.Member);
-
+            var addUserRole = await _userManager.AddToRoleAsync(user, RoleConstants.Member); // Must define what the role is from request
             if (!addUserRole.Succeeded) {
                 throw new Exception(); // Must be customized exception that will handle by the exception handler middleware
             }
 
-            var refreshToken = new RefreshToken {
-                User = user.User,
-                Token = Guid.NewGuid()
-                    .ToString(),
-                ExpiresAt = DateTime.UtcNow
-                    .AddDays(7),
-                CreatedAt = DateTime.UtcNow
-            };
+            var refreshToken = user.GenerateRefreshToken();
 
             await transaction.CommitAsync(cancellationToken);
 

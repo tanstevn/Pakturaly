@@ -1,5 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
@@ -42,34 +44,29 @@ namespace Pakturaly.Application.Auth.Commands {
     public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginCommandResult> {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<UserIdentity> _userManager;
+        private readonly IConfiguration _config;
 
-        public LoginCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager) {
+        public LoginCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager, IConfiguration config) {
             _dbContext = dbContext;
             _userManager = userManager;
+            _config = config;
         }
 
         public async Task<LoginCommandResult> HandleAsync(LoginCommand request, CancellationToken cancellationToken = default) {
             var user = await _userManager.FindByEmailAsync(request.Email) 
-                ?? throw new Exception(); 
+                ?? throw new Exception(); //
             
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!isPasswordValid) {
-                throw new Exception();
+                throw new Exception(); //
             }
 
             using var transaction = await _dbContext.Database
                 .BeginTransactionAsync(cancellationToken);
 
-            var refreshToken = new RefreshToken {
-                User = user.User,
-                Token = Guid.NewGuid()
-                    .ToString(),
-                ExpiresAt = DateTime.UtcNow
-                    .AddDays(7),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            // Generate access token here
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var accessToken = user.GenerateAccessToken(userRoles, _config);
+            var refreshToken = user.GenerateRefreshToken();
 
             await transaction.CommitAsync(cancellationToken);
 
