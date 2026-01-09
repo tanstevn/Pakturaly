@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Pakturaly.Infrastructure.Abstractions;
 
 namespace Pakturaly.Api.Controllers {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase {
+    [Authorize, Route("api/users")]
+    public class UserController : BaseController {
+        private readonly IMediator _mediator;
 
+        public UserController(IMediator mediator) {
+            _mediator = mediator;
+        }
     }
 }

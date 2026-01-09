@@ -18,13 +18,12 @@ namespace Pakturaly.Application.Auth.Commands {
         public string Id { get; set; } = default!;
         public string FullName { get; set; } = default!;
         public string Email { get; set; } = default!;
-        public string AccessToken { get; set; } = default!;
         public string RefreshToken { get; set; } = default!;
         public bool IsSuccess { get; set; }
     }
 
-    public class RegisterCommandValidation : AbstractValidator<RegisterCommand> {
-        public RegisterCommandValidation() {
+    public class RegisterCommandValidator : AbstractValidator<RegisterCommand> {
+        public RegisterCommandValidator() {
             RuleFor(param => param.GivenName)
                 .NotEmpty()
                 .WithMessage(param => $"{nameof(param.GivenName)} should not be empty.")
@@ -74,22 +73,31 @@ namespace Pakturaly.Application.Auth.Commands {
             var addUserIdentity = await _userManager.CreateAsync(user, request.Password);
 
             if (!addUserIdentity.Succeeded) {
-
+                throw new Exception(); // Must be customized exception that will handle by the exception handler middleware
             }
 
             var addUserRole = await _userManager.AddToRoleAsync(user, RoleConstants.Member);
 
             if (!addUserRole.Succeeded) {
-
+                throw new Exception(); // Must be customized exception that will handle by the exception handler middleware
             }
 
+            var refreshToken = new RefreshToken {
+                User = user.User,
+                Token = Guid.NewGuid()
+                    .ToString(),
+                ExpiresAt = DateTime.UtcNow
+                    .AddDays(7),
+                CreatedAt = DateTime.UtcNow
+            };
+
             await transaction.CommitAsync(cancellationToken);
+
             return new RegisterCommandResult {
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email,
-                AccessToken = string.Empty,
-                RefreshToken = string.Empty,
+                RefreshToken = refreshToken.Token,
                 IsSuccess = true
             };
         }

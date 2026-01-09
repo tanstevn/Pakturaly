@@ -16,6 +16,7 @@ namespace Pakturaly.Data.Configurations {
             builder.HasOne(refreshToken => refreshToken.User)
                 .WithMany(user => user.RefreshTokens);
 
+            builder.HasIndex(refreshToken => refreshToken.Token);
             base.Configure(builder);
         }
     }

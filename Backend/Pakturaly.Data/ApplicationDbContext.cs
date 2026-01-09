@@ -15,14 +15,23 @@ namespace Pakturaly.Data {
             ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
-        public DbSet<User> Users { get; set; }
+        public new DbSet<User> Users { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
 
-            modelBuilder.Entity<User>().HasQueryFilter(user => user.TenantId == _tenantId);
-            
+            #region Global Filters
+            if (_tenantId != Guid.Empty) {
+                modelBuilder.Entity<User>()
+                    .HasQueryFilter(user => user.TenantId == _tenantId);
+
+                modelBuilder.Entity<UserIdentity>()
+                    .HasQueryFilter(identity => identity.User.TenantId == _tenantId);
+            }
+            #endregion
+
             base.OnModelCreating(modelBuilder);
         }
 
