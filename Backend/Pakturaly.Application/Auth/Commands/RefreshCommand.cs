@@ -10,23 +10,19 @@ using Pakturaly.Infrastructure.Abstractions;
 namespace Pakturaly.Application.Auth.Commands {
     public class RefreshCommand : ICommand<RefreshCommandResult> {
         public string RefreshToken { get; set; } = default!;
-        public long UserId { get; set; }
     }
 
     public class RefreshCommandResult {
         public string AccessToken { get; set; } = default!;
+        public int ExpiresIn { get; set; } = default!;
         public string RefreshToken { get; set; } = default!;
     }
 
     public class RefreshCommandValidator : AbstractValidator<RefreshCommand> {
         public RefreshCommandValidator() {
             RuleFor(param => param.RefreshToken)
-                .Must(value => Guid.TryParse(value, out _))
-                .WithMessage(param => $"{nameof(param.RefreshToken)} is not a valid GUID format.");
-
-            RuleFor(param => param.UserId)
-                .GreaterThanOrEqualTo(1)
-                .WithMessage(param => $"{nameof(param.UserId)} should not be a negative value.");
+                .NotEmpty()
+                .WithMessage(param => $"{nameof(param.RefreshToken)} should not be empty.");
         }
     }
 
@@ -43,29 +39,25 @@ namespace Pakturaly.Application.Auth.Commands {
 
         public async Task<RefreshCommandResult> HandleAsync(RefreshCommand request, CancellationToken cancellationToken = default) {
             var currentRefreshToken = await _dbContext.RefreshTokens
-                .Where(refreshToken => refreshToken.Token == request.RefreshToken)
-                .FirstOrDefaultAsync(cancellationToken);
+                .AsTracking()
+                .FirstOrDefaultAsync(refreshToken => refreshToken.Token == request.RefreshToken,
+                    cancellationToken);
 
-            if (currentRefreshToken is null || !currentRefreshToken.IsActive) {
+            if (currentRefreshToken is null) {
                 throw new Exception(); //
             }
 
-            var user = await _userManager.FindByIdAsync(currentRefreshToken.User.Identity.Email!)
-                ?? throw new Exception(); //
+            var user = currentRefreshToken.User;
+            var (accessToken, expiresIn) = user.CreateAccessToken(_config);
 
-            using var transaction = await _dbContext.Database
-                .BeginTransactionAsync(cancellationToken);
+            var newRefreshToken = user.CreateRefreshToken();
+            user.RefreshTokens.Remove(currentRefreshToken);
 
-            currentRefreshToken.DeletedAt = DateTime.UtcNow;
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var accessToken = user.GenerateAccessToken(userRoles, _config);
-            var newRefreshToken = user.GenerateRefreshToken();
-
-            await transaction.CommitAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return new RefreshCommandResult {
                 AccessToken = accessToken,
+                ExpiresIn = expiresIn,
                 RefreshToken = newRefreshToken.Token
             };
         }

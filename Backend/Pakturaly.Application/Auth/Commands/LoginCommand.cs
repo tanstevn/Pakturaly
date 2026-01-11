@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
@@ -18,6 +19,7 @@ namespace Pakturaly.Application.Auth.Commands {
         public string TenantId { get; set; } = default!;
         public string AccessToken { get; set; } = default!;
         public string RefreshToken { get; set; } = default!;
+        public int ExpiresIn { get; set; } = default!;
     }
 
     public class LoginCommandValidator : AbstractValidator<LoginCommand> {
@@ -33,11 +35,6 @@ namespace Pakturaly.Application.Auth.Commands {
             RuleFor(param => param.Password)
                 .NotEmpty()
                 .WithMessage(param => $"{nameof(param.Password)} should not be empty.");
-
-            RuleFor(param => param.RefreshToken)
-                .Must(value => Guid.TryParse(value, out _))
-                .When(param => !string.IsNullOrEmpty(param.RefreshToken))
-                .WithMessage(param => $"{nameof(param.RefreshToken)} is not a valid GUID format.");
         }
     }
 
@@ -53,29 +50,52 @@ namespace Pakturaly.Application.Auth.Commands {
         }
 
         public async Task<LoginCommandResult> HandleAsync(LoginCommand request, CancellationToken cancellationToken = default) {
-            var user = await _userManager.FindByEmailAsync(request.Email) 
-                ?? throw new Exception(); //
+            var user = await _dbContext.Users
+                .AsTracking()
+                .SingleOrDefaultAsync(user => user.Identity.Email == request.Email,
+                    cancellationToken);
             
-            var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+            if (user is null) {
+                throw new Exception(); //
+            }
+            
+            var isPasswordValid = await _userManager
+                .CheckPasswordAsync(user.Identity, request.Password);
+
             if (!isPasswordValid) {
                 throw new Exception(); //
             }
 
-            using var transaction = await _dbContext.Database
-                .BeginTransactionAsync(cancellationToken);
+            var (accessToken, expiresIn) = user.CreateAccessToken(_config);
 
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var accessToken = user.GenerateAccessToken(userRoles, _config);
-            var refreshToken = user.GenerateRefreshToken();
+            var refreshToken = await GetRefreshTokenAsync(request.RefreshToken,
+                user, cancellationToken);
 
-            await transaction.CommitAsync(cancellationToken);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return new LoginCommandResult {
-                Id = user.User.Id,
-                TenantId = user.User.TenantId.ToString(),
-                AccessToken = string.Empty,
+                Id = user.Id,
+                TenantId = user.TenantId
+                    .ToString(),
+                AccessToken = accessToken,
+                ExpiresIn = expiresIn,
                 RefreshToken = refreshToken.Token
             };
+        }
+
+        private async Task<RefreshToken> GetRefreshTokenAsync(string? refreshToken, User user, CancellationToken cancellationToken) {
+            if (!string.IsNullOrEmpty(refreshToken)) {
+                var currentRefreshToken = user.RefreshTokens
+                    .FirstOrDefault(token => token.Token == refreshToken);
+
+                if (currentRefreshToken is null) {
+                    throw new Exception();
+                }
+                
+                user.RefreshTokens.Remove(currentRefreshToken);
+            }
+
+            return user.CreateRefreshToken();
         }
     }
 }

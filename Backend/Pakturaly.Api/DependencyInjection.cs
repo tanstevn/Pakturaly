@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Pakturaly.Application;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
@@ -9,6 +11,7 @@ using Pakturaly.Infrastructure.Extensions;
 using Pakturaly.Infrastructure.Services;
 using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
+using System.Security.Cryptography;
 
 namespace Pakturaly.Api {
     public static class DependencyInjection {
@@ -20,22 +23,6 @@ namespace Pakturaly.Api {
         public static void ConfigureServices(IServiceCollection services, IConfiguration config) {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-
-            services.AddOpenApi(options => {
-                options.AddDocumentTransformer((document, context, _) => {
-                    document.Info = new() {
-                        Title = "Pakturaly API",
-                        Version = "v1",
-                        Description = "API documentation of Pakturaly",
-                        Contact = new() {
-                            Name = "Pakturaly API Support",
-                            Email = "tanstevenlester@gmail.com"
-                        }
-                    };
-
-                    return Task.CompletedTask;
-                });
-            });
 
             services.AddHttpContextAccessor();
             services.AddScoped<ITenantService, TenantService>();
@@ -56,6 +43,38 @@ namespace Pakturaly.Api {
                     options.Password.RequiredUniqueChars = 1;
                 })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            var rsa = RSA.Create();
+            rsa.ImportFromPem(config["PublicKey"]);
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => {
+                    options.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new RsaSecurityKey(rsa),
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = config["Jwt:Issuer"],
+                        ValidAudience = config["Jwt:Audience"],
+                        ValidateLifetime = true
+                    };
+                });
+
+            services.AddOpenApi(options => {
+                options.AddDocumentTransformer((document, context, _) => {
+                    document.Info = new() {
+                        Title = "Pakturaly API",
+                        Version = "v1",
+                        Description = "API documentation of Pakturaly",
+                        Contact = new() {
+                            Name = "Pakturaly API Support",
+                            Email = "tanstevenlester@gmail.com"
+                        }
+                    };
+
+                    return Task.CompletedTask;
+                });
+            });
         }
 
         public static void ConfigureHost(ConfigureHostBuilder host, IConfigurationManager config) {

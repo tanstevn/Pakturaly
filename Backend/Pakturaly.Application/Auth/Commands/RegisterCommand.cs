@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
-using Pakturaly.Shared.Constants;
 
 namespace Pakturaly.Application.Auth.Commands {
     public class RegisterCommand : ICommand<RegisterCommandResult> {
@@ -13,10 +13,11 @@ namespace Pakturaly.Application.Auth.Commands {
         public string Email { get; set; } = default!;
         public string Password { get; set; } = default!;
         public string? PhoneNumber { get; set; }
+        public string? TenantId { get; set; }
     }
 
     public class RegisterCommandResult {
-        public string Id { get; set; } = default!;
+        public long Id { get; set; } = default!;
         public string FullName { get; set; } = default!;
         public string Email { get; set; } = default!;
         public string RefreshToken { get; set; } = default!;
@@ -48,6 +49,11 @@ namespace Pakturaly.Application.Auth.Commands {
             RuleFor(param => param.Password)
                 .NotEmpty()
                 .WithMessage(param => $"{nameof(param.Password)} should not be empty.");
+
+            RuleFor(param => param.TenantId)
+                .Must(value => Guid.TryParse(value, out _))
+                .When(param => !string.IsNullOrEmpty(param.TenantId))
+                .WithMessage(param => $"{nameof(param.TenantId)} is not a valid GUID format.");
         }
     }
 
@@ -61,36 +67,63 @@ namespace Pakturaly.Application.Auth.Commands {
         }
 
         public async Task<RegisterCommandResult> HandleAsync(RegisterCommand request, CancellationToken cancellationToken = default) {
+            var utcNow = DateTime.UtcNow;
+
             using var transaction = await _dbContext.Database
                 .BeginTransactionAsync(cancellationToken);
 
-            var user = new UserIdentity {
+            var tenant = await GetTenantAsync(request.TenantId, 
+                request.GivenName, request.LastName, cancellationToken);
+
+            var user = new User {
+                CreatedAt = utcNow,
+                Tenant = tenant!
+            };
+
+            var refreshToken = user.CreateRefreshToken();
+
+            var userIdentity = new UserIdentity {
                 GivenName = request.GivenName,
                 LastName = request.LastName,
                 Email = request.Email,
-                PhoneNumber = request.PhoneNumber
+                UserName = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                User = user
             };
 
-            var addUserIdentity = await _userManager.CreateAsync(user, request.Password);
+            var addUserIdentity = await _userManager.CreateAsync(userIdentity, request.Password);
+
             if (!addUserIdentity.Succeeded) {
-                throw new Exception(); // Must be customized exception that will handle by the exception handler middleware
+                await transaction.RollbackAsync(cancellationToken);
+                throw new Exception(); //
             }
-
-            var addUserRole = await _userManager.AddToRoleAsync(user, RoleConstants.Member); // Must define what the role is from request
-            if (!addUserRole.Succeeded) {
-                throw new Exception(); // Must be customized exception that will handle by the exception handler middleware
-            }
-
-            var refreshToken = user.GenerateRefreshToken();
 
             await transaction.CommitAsync(cancellationToken);
 
             return new RegisterCommandResult {
                 Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
+                FullName = user.Identity.FullName,
+                Email = user.Identity.Email!,
                 RefreshToken = refreshToken.Token,
                 IsSuccess = true
+            };
+        }
+
+        private async Task<Tenant> GetTenantAsync(string? tenantId, string givenName, string lastName, CancellationToken cancellationToken) {
+            if (!string.IsNullOrEmpty(tenantId)
+                && Guid.TryParse(tenantId, out var parsedTenantId)) {
+                var tenant = await _dbContext.Tenants
+                    .FirstOrDefaultAsync(tenant => tenant.Id == parsedTenantId, cancellationToken);
+
+                if (tenant is not null) {
+                    return tenant;
+                }
+            }
+
+            return new Tenant {
+                Id = Guid.NewGuid(),
+                Name = string.Format("{0} {1}", givenName, lastName),
+                CreatedAt = DateTime.UtcNow
             };
         }
     }

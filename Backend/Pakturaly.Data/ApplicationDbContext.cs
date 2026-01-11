@@ -7,7 +7,7 @@ using Pakturaly.Infrastructure.Abstractions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pakturaly.Data {
-    public sealed class ApplicationDbContext : IdentityDbContext<UserIdentity> {
+    public sealed class ApplicationDbContext : IdentityUserContext<UserIdentity> {
         private readonly Guid _tenantId;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService) : base(options) {
@@ -52,7 +52,7 @@ namespace Pakturaly.Data {
                     && (entry.Metadata.BaseType is not null
                         ? typeof(ISoftDelete).IsAssignableFrom(entry.Metadata.BaseType.ClrType)
                         : entry.Entity is ISoftDelete)
-                    && entry.Metadata.IsOwned()
+                    && !entry.Metadata.IsOwned()
                     && entry.Metadata is not EntityType {
                         IsImplicitlyCreatedJoinEntityType: true
                     });

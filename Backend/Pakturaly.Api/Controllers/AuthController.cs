@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Pakturaly.Application.Auth.Commands;
 using Pakturaly.Infrastructure.Abstractions;
 
 namespace Pakturaly.Api.Controllers {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController : BaseController {
         private readonly IMediator _mediator;
 
@@ -18,7 +17,7 @@ namespace Pakturaly.Api.Controllers {
             return Created($"api/users/{result.Id}", result);
         }
 
-        [Authorize, HttpPost("login")]
+        [/*Authorize,*/ HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginCommand command) {
             var result = await _mediator.SendAsync(command);
             return Ok(result);

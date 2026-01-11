@@ -1,5 +1,4 @@
 ﻿using Pakturaly.Data.Abstractions;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Pakturaly.Data.Entities {
     public class RefreshToken : IUserScoped, ISoftDelete {
@@ -9,8 +8,6 @@ namespace Pakturaly.Data.Entities {
         public DateTime ExpiresAt { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
-        [NotMapped]
-        public bool IsActive => DeletedAt is null && DateTime.UtcNow < ExpiresAt;
 
         public virtual User User { get; set; } = default!;
     }

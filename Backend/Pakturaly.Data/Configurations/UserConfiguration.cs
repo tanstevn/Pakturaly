@@ -16,6 +16,12 @@ namespace Pakturaly.Data.Configurations {
             builder.HasMany(user => user.RefreshTokens)
                 .WithOne(refreshToken => refreshToken.User);
 
+            builder.Navigation(user => user.Identity)
+                .AutoInclude();
+
+            builder.Navigation(user => user.RefreshTokens)
+                .AutoInclude();
+
             builder.HasIndex(user => user.TenantId);
             base.Configure(builder);
         }
