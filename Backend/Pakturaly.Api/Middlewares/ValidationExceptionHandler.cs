@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Pakturaly.Shared.Utils;
-using System.Text.Json;
 
 namespace Pakturaly.Api.Middlewares {
     public class ValidationExceptionHandler : IExceptionHandler {
