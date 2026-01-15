@@ -6,6 +6,7 @@ using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
+using Pakturaly.Shared.Exceptions;
 
 namespace Pakturaly.Application.Auth.Commands {
     public class LoginCommand : ICommand<LoginCommandResult> {
@@ -54,22 +55,22 @@ namespace Pakturaly.Application.Auth.Commands {
                 .AsTracking()
                 .SingleOrDefaultAsync(user => user.Identity.Email == request.Email,
                     cancellationToken);
-            
+
             if (user is null) {
-                throw new Exception(); //
+                throw new UnauthorizedAccessException("User not found.");
             }
-            
+
             var isPasswordValid = await _userManager
                 .CheckPasswordAsync(user.Identity, request.Password);
 
             if (!isPasswordValid) {
-                throw new Exception(); //
+                throw new UnauthorizedAccessException("User not found.");
             }
-
-            var (accessToken, expiresIn) = user.CreateAccessToken(_config);
 
             var refreshToken = await GetRefreshTokenAsync(request.RefreshToken,
                 user, cancellationToken);
+
+            var (accessToken, expiresIn) = user.CreateAccessToken(_config);
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -91,7 +92,7 @@ namespace Pakturaly.Application.Auth.Commands {
                 if (currentRefreshToken is null) {
                     throw new Exception();
                 }
-                
+
                 user.RefreshTokens.Remove(currentRefreshToken);
             }
 

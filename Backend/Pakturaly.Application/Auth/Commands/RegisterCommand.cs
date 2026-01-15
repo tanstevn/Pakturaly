@@ -60,13 +60,18 @@ namespace Pakturaly.Application.Auth.Commands {
     public class RegisterCommandHandler : IRequestHandler<RegisterCommand, RegisterCommandResult> {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<UserIdentity> _userManager;
+        private readonly IValidator<RegisterCommand> _validator;
 
-        public RegisterCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager) {
+        public RegisterCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager,
+            IValidator<RegisterCommand> validator) {
             _dbContext = dbContext;
             _userManager = userManager;
+            _validator = validator;
         }
 
         public async Task<RegisterCommandResult> HandleAsync(RegisterCommand request, CancellationToken cancellationToken = default) {
+            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
             var utcNow = DateTime.UtcNow;
 
             using var transaction = await _dbContext.Database

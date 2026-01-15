@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Pakturaly.Data\Pakturaly.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Middlewares\" />
-  </ItemGroup>
-
 </Project>

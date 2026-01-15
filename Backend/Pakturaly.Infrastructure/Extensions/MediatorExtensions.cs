@@ -12,7 +12,7 @@ namespace Pakturaly.Infrastructure.Extensions {
 
             services.AddScoped<IMediator, MediatorService>();
             services.AddRequestHandlers(assemblyTypes);
-            services.AddPipelineBehaviors(assemblyTypes);
+            //services.AddPipelineBehaviors(assemblyTypes);
         }
 
         private static void AddRequestHandlers(this IServiceCollection services, Type[] types) {

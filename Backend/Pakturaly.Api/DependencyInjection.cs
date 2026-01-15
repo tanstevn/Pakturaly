@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Pakturaly.Api.Middlewares;
 using Pakturaly.Application;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
@@ -23,6 +24,10 @@ namespace Pakturaly.Api {
         public static void ConfigureServices(IServiceCollection services, IConfiguration config) {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
+
+            services.AddProblemDetails();
+            services.AddExceptionHandler<ValidationExceptionHandler>();
+            services.AddExceptionHandler<GlobalExceptionHandler>();
 
             services.AddHttpContextAccessor();
             services.AddScoped<ITenantService, TenantService>();
@@ -91,6 +96,8 @@ namespace Pakturaly.Api {
                     .ExcludeFromDescription();
             }
 
+            app.UseExceptionHandler();
+
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
@@ -108,6 +115,7 @@ namespace Pakturaly.Api {
             });
 
             // Middlewares here
+            
 
             InitializeRequiredServices(app);
         }
