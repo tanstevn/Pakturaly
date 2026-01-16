@@ -1,0 +1,15 @@
+ 1<?xml version="1.0" encoding="utf-8" ?>
+ 2<RunSettings>
+ 3  <DataCollectionRunSettings>
+ 4    <DataCollectors>
+ 5      <DataCollector friendlyName="XPlat code coverage">
+ 6        <Configuration>
+ 7          <Format>cobertura,opencover</Format>
+			<Exclude>[*.Tests?]*</Exclude>
+			<ExcludeByFile>**/Migrations/*.cs,</ExcludeByFile>
+			<SkipAutoProps>true</SkipAutoProps>
+ 8        </Configuration>
+ 9      </DataCollector>
+10    </DataCollectors>
+11  </DataCollectionRunSettings>
+12</RunSettings>
