@@ -79,6 +79,9 @@ jobs:
     - name: Run unit and integration tests
       run: dotnet test --no-build --verbosity normal --settings tests.runsettings
 
+    - name: Combine coverate reports
+      run: dotnet reportgenerator -reports:"TestResults/**/coverage.cobertura.xml" -targetdir:"coverage" -reporttypes:"HtmlInline;HtmlChart"
+
     - name: Publish code coverage results
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
