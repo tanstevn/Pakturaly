@@ -89,7 +89,7 @@ jobs:
         
     - name: Write code coverage result to PR
       uses: marocchino/sticky-pull-request-comment@v2.9.4
-      if: github.event_name == pull_request
+      if: github.event_name == 'pull_request'
       with:
         recreate: true
         path: code-coverage-results.md
