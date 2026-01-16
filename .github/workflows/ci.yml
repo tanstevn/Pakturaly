@@ -1,10 +1,22 @@
 name: Continuous Integration
 
 on:
+  push:
+    branches:
+      - "master"
+      - "feature/*"
+
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - "master"
+    paths-ignore:
+      - "**/*.md"
+
   workflow_dispatch:
 
+permissions:
+  security-events-create: write
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -50,6 +62,7 @@ jobs:
 
     - name: Perform CodeQL analysis
       uses: github/codeql-action/analyze@v3
+      
 
     - name: Run unit tests
       run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Integration.Tests
