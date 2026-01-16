@@ -1,0 +1,6 @@
+workflow: GitHubFlow/v1
+strategies:
+  - Mainline
+
+assembly-informational-format: '{FullSemVer}.{env:BUILD_BUILDID ?? 0000}'
+update-build-number: false

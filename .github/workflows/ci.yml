@@ -1,23 +1,58 @@
-name: .NET
+name: Continuous Integration
 
 on:
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v6.0.1
-    - name: Setup .NET
+    - name: Checkout full repository
+      uses: actions/checkout@v6.0.1
+      with:
+        fetch-depth: 0
+  
+    - name: Setup .NET 10
       uses: actions/setup-dotnet@v5.1.0
       with:
         dotnet-version: 10.0.x
-    - name: Restore dependencies
-      run: dotnet restore ./Backend/Pakturaly.sln
-    - name: Build
-      run: dotnet build ./Backend/Pakturaly.sln --no-restore
-    - name: Test
-      run: dotnet test ./Backend/Pakturaly.sln --no-build --verbosity normal
+
+    - name: Install report generator tool
+      run: dotnet tool install dotnet-reportgenerator-globaltool
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v4.2.0
+      with:
+        versionSpec: 6.4.x
+
+    - name: Determine build version
+      id: build_version
+      uses: gittools/actions/gitversion/execute@v4.2.0
+      with:
+        disableCache: true
+
+    - name: Build version
+      run: echo "This build will be versioned as ${{ env.informationalVersion }}"
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: "csharp"
+
+    - name: Restore solution dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build --no-restore
+
+    - name: Perform CodeQL analysis
+      uses: github/codeql-action/analyze@v3
+
+    - name: Run unit tests
+      run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Integration.Tests
+
+    - name: Run integration tests
+      run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Unit.Tests
