@@ -75,17 +75,20 @@ jobs:
 
     # - name: Create Cobertura reports
     #   run: dotnet reportgenerator -reports:"./*.Unit.Tests/TestResults/**/coverage.cobertura.xml" -targetdir:"coveragereport" -reporttypes:"HtmlInline;HtmlChart"
+
+    - name: Find code coverage file
+      run: cat $(find . -name coverage.cobertura.xml)
       
-    - name: Publish code coverage results
-      uses: irongut/CodeCoverageSummary@v1.3.0
-      with:
-        filename: "**/Pakturaly.Unit.Tests/TestResults/**/coverage.cobertura.xml"
-        badge: true
-        fail_below_min: true
-        format: markdown
-        indicators: true
-        output: both
-        thresholds: "30 60"
+    # - name: Publish code coverage results
+    #   uses: irongut/CodeCoverageSummary@v1.3.0
+    #   with:
+    #     filename: "**/Pakturaly.Unit.Tests/TestResults/**/coverage.cobertura.xml"
+    #     badge: true
+    #     fail_below_min: true
+    #     format: markdown
+    #     indicators: true
+    #     output: both
+    #     thresholds: "30 60"
         
     - name: Write code coverage result to PR
       uses: marocchino/sticky-pull-request-comment@v2.9.4
