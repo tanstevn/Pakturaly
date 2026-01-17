@@ -64,8 +64,8 @@ jobs:
     - name: Perform CodeQL analysis
       uses: github/codeql-action/analyze@v3
 
-    # - name: Run integration tests
-    #   run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Unit.Tests
+    - name: Run integration tests
+      run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Unit.Tests
       
     - name: Run unit tests
       run: dotnet test --no-build --verbosity normal --settings tests.runsettings --filter FullyQualifiedName!~Integration.Tests
@@ -73,8 +73,8 @@ jobs:
     # - name: Create OpenCover reports
     #   run: dotnet reportgenerator -reports:"${{ github.workspace }}/**/Pakturaly.Unit.Tests/TestResults/**/coverage.opencover.xml" -targetdir:"coveragereport" -reporttypes:"HtmlInline;HtmlChart;"
 
-    - name: Create Cobertura reports
-      run: dotnet reportgenerator -reports:"./**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage" -reporttypes:"HtmlInline;HtmlChart"
+    # - name: Create Cobertura reports
+    #   run: dotnet reportgenerator -reports:"./**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage" -reporttypes:"HtmlInline;HtmlChart"
 
     - name: Find code coverage file
       run: cat $(find . -name coverage.cobertura.xml)
