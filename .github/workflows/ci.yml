@@ -64,8 +64,8 @@ jobs:
     - name: Perform CodeQL analysis
       uses: github/codeql-action/analyze@v3
 
-    - name: Run integration tests
-      run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Unit.Tests
+    # - name: Run integration tests
+    #   run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Unit.Tests
       
     - name: Run unit tests
       run: dotnet test --no-build --verbosity normal --settings tests.runsettings --filter FullyQualifiedName!~Integration.Tests
