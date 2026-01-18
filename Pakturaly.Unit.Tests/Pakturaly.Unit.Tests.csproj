@@ -19,4 +19,9 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Pakturaly.Application\Pakturaly.Application.csproj" />
+    <ProjectReference Include="..\Pakturaly.Infrastructure\Pakturaly.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

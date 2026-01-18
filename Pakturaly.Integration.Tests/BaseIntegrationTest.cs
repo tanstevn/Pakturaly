@@ -1,19 +1,107 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Pakturaly.Application;
 using Pakturaly.Data;
+using Pakturaly.Data.Entities;
+using Pakturaly.Infrastructure.Abstractions;
+using Pakturaly.Infrastructure.Services;
 
 namespace Pakturaly.Integration.Tests {
-    public abstract class BaseIntegrationTest {
-        protected ApplicationDbContext DbContext { get; private set; }
+    public abstract class BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> : IDisposable
+        where TTestClass : class
+        where TRequest : IRequest<TResult>
+        where TRequestHandler : class, IRequestHandler<TRequest, TResult> {
+        private readonly IConfiguration _configuration;
+        private readonly ServiceProvider _serviceProvider;
+        private readonly ApplicationDbContext _dbContext;
+        private readonly IMediator _mediator;
+
+        private TRequest _request = default!;
+        private TResult _result = default!;
+        private Exception _exception = default!;
 
         protected BaseIntegrationTest() {
-            var dbName = Guid.NewGuid()
-                .ToString();
+            var services = new ServiceCollection();
 
-            var contextOptions = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseInMemoryDatabase(dbName)
-                .Options;
+            _configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true)
+                .AddEnvironmentVariables()
+                .Build();
 
-            DbContext = new ApplicationDbContext(contextOptions, null!);
+            services.AddSingleton(_configuration);
+
+            services.AddHttpContextAccessor();
+            services.AddScoped<ITenantService, TenantService>();
+
+            ConfigureMediator(services);
+            ConfigureDatabase(services);
+
+            _serviceProvider = services.BuildServiceProvider();
+            _dbContext = _serviceProvider.GetRequiredService<ApplicationDbContext>();
+            _mediator = _serviceProvider.GetRequiredService<IMediator>();
+        }
+
+        private void ConfigureMediator(IServiceCollection services) {
+            services.AddScoped<IMediator, MediatorService>();
+            services.AddValidatorsFromAssembly(typeof(MediatorAnchor).Assembly);
+
+            //services.AddTransient<IPipelineBehavior<TRequest, TResult>, ExampleLoggingBehavior<TRequest, TResult>>();
+            //services.AddTransient<IPipelineBehavior<TRequest, TResult>, ExampleValidationBehavior<TRequest, TResult>>();
+
+            services.AddTransient<IRequestHandler<TRequest, TResult>, TRequestHandler>();
+        }
+
+        private void ConfigureDatabase(IServiceCollection services) {
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(_configuration.GetConnectionString("Pakturaly")));
+
+            services
+                .AddIdentityCore<UserIdentity>(options => {
+                    options.Password.RequireDigit = true;
+                    options.Password.RequireLowercase = true;
+                    options.Password.RequireUppercase = true;
+                    options.Password.RequireNonAlphanumeric = true;
+                    options.Password.RequiredLength = 8;
+                    options.Password.RequiredUniqueChars = 1;
+                })
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+        }
+
+        public BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> Arrange(Action<TRequest> arrange) {
+            _request = Activator.CreateInstance<TRequest>();
+            arrange(_request);
+
+            return this;
+        }
+
+        public BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> Act() {
+            try {
+                _result = _mediator.SendAsync(_request)
+                    .GetAwaiter()
+                    .GetResult();
+            }
+            catch (Exception ex) {
+                _exception = ex;
+            }
+
+            return this;
+        }
+
+        public void Assert(Action<TResult> assertion) {
+            assertion(_result);
+        }
+
+        public void AssertThrows<TException>(Action<TException> assertion)
+            where TException : Exception {
+            var exception = (TException)_exception;
+            assertion(exception);
+        }
+
+        public void Dispose() {
+            _dbContext.Dispose();
+            _serviceProvider.Dispose();
         }
     }
 }

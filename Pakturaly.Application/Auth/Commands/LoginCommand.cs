@@ -6,7 +6,6 @@ using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
-using Pakturaly.Shared.Exceptions;
 
 namespace Pakturaly.Application.Auth.Commands {
     public class LoginCommand : ICommand<LoginCommandResult> {
@@ -43,14 +42,19 @@ namespace Pakturaly.Application.Auth.Commands {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<UserIdentity> _userManager;
         private readonly IConfiguration _config;
+        private readonly IValidator<LoginCommand> _validator;
 
-        public LoginCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager, IConfiguration config) {
+        public LoginCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager, 
+            IConfiguration config, IValidator<LoginCommand> validator) {
             _dbContext = dbContext;
             _userManager = userManager;
             _config = config;
+            _validator = validator;
         }
 
         public async Task<LoginCommandResult> HandleAsync(LoginCommand request, CancellationToken cancellationToken = default) {
+            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
             var user = await _dbContext.Users
                 .AsTracking()
                 .SingleOrDefaultAsync(user => user.Identity.Email == request.Email,

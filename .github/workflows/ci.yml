@@ -1,13 +1,26 @@
 name: Continuous Integration
 
 on:
-  pull_request:
-    branches: [ "master" ]
-  workflow_dispatch:
+  push:
+    branches:
+      - "master"
 
+  pull_request:
+    branches:
+      - "master"
+    paths-ignore:
+      - "**/*.md"
+
+  workflow_dispatch:
+  
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
 
     steps:
     - name: Checkout full repository
@@ -51,8 +64,34 @@ jobs:
     - name: Perform CodeQL analysis
       uses: github/codeql-action/analyze@v3
 
-    - name: Run unit tests
-      run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Integration.Tests
+    # Include integration testing in the workflow in the future here
 
-    - name: Run integration tests
-      run: dotnet test --no-build --verbosity normal --filter FullyQualifiedName!~Unit.Tests
+    - name: Run unit tests
+      run: dotnet test --no-build --verbosity normal --settings tests.runsettings --filter FullyQualifiedName!~Integration.Tests
+
+    # - name: Create OpenCover reports
+    #   run: dotnet reportgenerator -reports:"${{ github.workspace }}/**/Pakturaly.Unit.Tests/TestResults/**/coverage.opencover.xml" -targetdir:"coveragereport" -reporttypes:"HtmlInline;HtmlChart;"
+
+    # - name: Create Cobertura reports
+    #   run: dotnet reportgenerator -reports:"./**/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage" -reporttypes:"HtmlInline;HtmlChart"
+
+    - name: Find code coverage file
+      run: cat $(find . -name coverage.cobertura.xml)
+      
+    - name: Publish code coverage results
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        filename: "**/TestResults/**/coverage.cobertura.xml"
+        badge: true
+        fail_below_min: true
+        format: markdown
+        indicators: true
+        output: both
+        thresholds: "30 60"
+        
+    - name: Write code coverage result to PR
+      uses: marocchino/sticky-pull-request-comment@v2.9.4
+      if: ${{ github.event_name == 'pull_request' }}
+      with:
+        recreate: true
+        path: code-coverage-results.md
