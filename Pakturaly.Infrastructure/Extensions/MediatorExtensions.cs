@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Pakturaly.Infrastructure.Abstractions;
 using Pakturaly.Infrastructure.Services;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace Pakturaly.Infrastructure.Extensions {
+    [ExcludeFromCodeCoverage]
     public static class MediatorExtensions {
         public static void AddMediatorFromAssembly(this IServiceCollection services, Assembly assembly) {
             ArgumentNullException.ThrowIfNull(assembly);

@@ -4,7 +4,6 @@ using Pakturaly.Data.Abstractions;
 
 namespace Pakturaly.Data.Extensions {
     public static class EntityTypeBuilderExtensions {
-
         public static EntityTypeBuilder<TEntity> ConfigureId<TEntity>(this EntityTypeBuilder<TEntity> builder)
             where TEntity : class {
             builder.HasKey("Id");

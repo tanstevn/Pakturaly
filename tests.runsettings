@@ -6,9 +6,11 @@
         <Configuration>
           <Format>cobertura,opencover</Format>
 	        <Exclude>[Pakturaly.Integration.Tests]*</Exclude>
-	        <ExcludeByFile>**/Migrations/*.cs,</ExcludeByFile>
+          <Exclude>[Pakturaly.Api.Controller]*</Exclude>
+          <Exclude>[Pakturaly.Data]*</Exclude>
           <ExcludeByFile>**/Program.cs</ExcludeByFile>
           <ExcludeByFile>**/DependencyInjection.cs</ExcludeByFile>
+          <ExcludeByFile>**/Pakturaly.Shared/Attributes/*.cs</ExcludeByFile>
 	        <SkipAutoProps>true</SkipAutoProps>
         </Configuration>
       </DataCollector>

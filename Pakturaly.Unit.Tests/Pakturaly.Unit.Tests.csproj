@@ -24,4 +24,10 @@
     <ProjectReference Include="..\Pakturaly.Infrastructure\Pakturaly.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Application\" />
+    <Folder Include="Api\" />
+    <Folder Include="Infrastructure\" />
+  </ItemGroup>
+
 </Project>

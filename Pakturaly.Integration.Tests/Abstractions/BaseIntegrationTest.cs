@@ -8,7 +8,7 @@ using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
 using Pakturaly.Infrastructure.Services;
 
-namespace Pakturaly.Integration.Tests {
+namespace Pakturaly.Integration.Tests.Abstractions {
     public abstract class BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> : IDisposable
         where TTestClass : class
         where TRequest : IRequest<TResult>

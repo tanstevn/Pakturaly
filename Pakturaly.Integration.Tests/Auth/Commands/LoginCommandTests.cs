@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Pakturaly.Application.Auth.Commands;
+using Pakturaly.Integration.Tests.Abstractions;
 
 namespace Pakturaly.Integration.Tests.Auth.Commands {
     public class LoginCommandTests : BaseIntegrationTest<LoginCommandTests, LoginCommand,

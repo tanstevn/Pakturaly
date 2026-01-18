@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Pakturaly.Application.Auth.Commands;
 using Pakturaly.Infrastructure.Abstractions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Pakturaly.Api.Controllers {
     [Route("api/auth")]
