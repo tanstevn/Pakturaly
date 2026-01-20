@@ -5,6 +5,7 @@ using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
+using Pakturaly.Shared.Utils;
 
 namespace Pakturaly.Application.Auth.Commands {
     public class RegisterCommand : ICommand<RegisterCommandResult> {
@@ -28,32 +29,41 @@ namespace Pakturaly.Application.Auth.Commands {
         public RegisterCommandValidator() {
             RuleFor(param => param.GivenName)
                 .NotEmpty()
-                .WithMessage(param => $"{nameof(param.GivenName)} should not be empty.")
+                    .WithMessage(param => $"{nameof(param.GivenName)} should not be empty.")
+                    .WithErrorCode(ErrorCodeConstants.NOT_EMPTY)
                 .MaximumLength(64)
-                .WithMessage(param => $"{nameof(param.GivenName)} has a maximum characters limit of 64 only.");
+                    .WithMessage(param => $"{nameof(param.GivenName)} has a maximum characters limit of 64 only.")
+                    .WithErrorCode(ErrorCodeConstants.MAX_CHARS_LIMIT);
 
             RuleFor(param => param.LastName)
                 .NotEmpty()
-                .WithMessage(param => $"{nameof(param.LastName)} should not be empty.")
+                    .WithMessage(param => $"{nameof(param.LastName)} should not be empty.")
+                    .WithErrorCode(ErrorCodeConstants.NOT_EMPTY)
                 .MaximumLength(64)
-                .WithMessage(param => $"{nameof(param.LastName)} has a maximum characters limit of 64 only.");
+                    .WithMessage(param => $"{nameof(param.LastName)} has a maximum characters limit of 64 only.")
+                    .WithErrorCode(ErrorCodeConstants.MAX_CHARS_LIMIT);
 
             RuleFor(param => param.Email)
                 .NotEmpty()
-                .WithMessage(param => $"{nameof(param.Email)} should not be empty.")
+                    .WithMessage(param => $"{nameof(param.Email)} should not be empty.")
+                    .WithErrorCode(ErrorCodeConstants.NOT_EMPTY)
                 .EmailAddress()
-                .WithMessage(param => $"{nameof(param.Email)} is not a valid email address.")
+                    .WithMessage(param => $"{nameof(param.Email)} is not a valid email address.")
+                    .WithErrorCode(ErrorCodeConstants.INVALID_EMAIL)
                 .MaximumLength(64)
-                .WithMessage(param => $"{nameof(param.Email)} has a maximum characters limit of 64 only.");
+                    .WithMessage(param => $"{nameof(param.Email)} has a maximum characters limit of 64 only.")
+                    .WithErrorCode(ErrorCodeConstants.MAX_CHARS_LIMIT);
 
             RuleFor(param => param.Password)
                 .NotEmpty()
-                .WithMessage(param => $"{nameof(param.Password)} should not be empty.");
+                    .WithMessage(param => $"{nameof(param.Password)} should not be empty.")
+                    .WithErrorCode(ErrorCodeConstants.NOT_EMPTY);
 
             RuleFor(param => param.TenantId)
                 .Must(value => Guid.TryParse(value, out _))
                 .When(param => !string.IsNullOrEmpty(param.TenantId))
-                .WithMessage(param => $"{nameof(param.TenantId)} is not a valid GUID format.");
+                .WithMessage(param => $"{nameof(param.TenantId)} is not a valid GUID format.")
+                .WithErrorCode(ErrorCodeConstants.INVALID_TYPE_FORMAT);
         }
     }
 

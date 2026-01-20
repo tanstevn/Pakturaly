@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using FluentAssertions;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,8 +10,8 @@ using Pakturaly.Infrastructure.Abstractions;
 using Pakturaly.Infrastructure.Services;
 
 namespace Pakturaly.Integration.Tests.Abstractions {
-    public abstract class BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> : IDisposable
-        where TTestClass : class
+    public abstract class BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> : IIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler>
+        where TTestClass : BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler>
         where TRequest : IRequest<TResult>
         where TRequestHandler : class, IRequestHandler<TRequest, TResult> {
         private readonly IConfiguration _configuration;
@@ -69,14 +70,14 @@ namespace Pakturaly.Integration.Tests.Abstractions {
                 .AddEntityFrameworkStores<ApplicationDbContext>();
         }
 
-        public BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> Arrange(Action<TRequest> arrange) {
+        public TTestClass Arrange(Action<TRequest> arrange) {
             _request = Activator.CreateInstance<TRequest>();
             arrange(_request);
 
-            return this;
+            return (TTestClass)this;
         }
 
-        public BaseIntegrationTest<TTestClass, TRequest, TResult, TRequestHandler> Act() {
+        public TTestClass Act() {
             try {
                 _result = _mediator.SendAsync(_request)
                     .GetAwaiter()
@@ -86,7 +87,7 @@ namespace Pakturaly.Integration.Tests.Abstractions {
                 _exception = ex;
             }
 
-            return this;
+            return (TTestClass)this;
         }
 
         public void Assert(Action<TResult> assertion) {
@@ -95,8 +96,12 @@ namespace Pakturaly.Integration.Tests.Abstractions {
 
         public void AssertThrows<TException>(Action<TException> assertion)
             where TException : Exception {
-            var exception = (TException)_exception;
-            assertion(exception);
+            ArgumentNullException.ThrowIfNull(_exception);
+
+            _exception.Should()
+                .BeOfType<TException>();
+
+            assertion((TException)_exception);
         }
 
         public void Dispose() {

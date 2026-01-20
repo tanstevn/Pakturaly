@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using FluentAssertions;
+using FluentValidation;
 using Pakturaly.Application.Auth.Commands;
 using Pakturaly.Integration.Tests.Abstractions;
 
@@ -6,20 +7,39 @@ namespace Pakturaly.Integration.Tests.Auth.Commands {
     public class LoginCommandTests : BaseIntegrationTest<LoginCommandTests, LoginCommand,
         LoginCommandResult, LoginCommandHandler> {
         [Fact]
-        public void LoginCommand_Without_RefreshToken_Runs_Successfully() {
+        public async Task LoginCommand_Without_RefreshToken_Runs_Successfully() {
             Arrange(param => {
                 param.Email = "";
                 param.Password = "";
             })
             .Act()
             .Assert(result => {
-                Xunit.Assert.NotNull(result);
-                Xunit.Assert.Equal(1, result.Id);
-                Xunit.Assert.True(!string.IsNullOrEmpty(result.TenantId));
-                Xunit.Assert.Equal("", result.TenantId);
-                Xunit.Assert.True(!string.IsNullOrEmpty(result.AccessToken));
-                Xunit.Assert.True(!string.IsNullOrEmpty(result.RefreshToken));
-                Xunit.Assert.True(result.ExpiresIn > 0);
+                result.Should()
+                    .NotBeNull();
+
+                result.Id
+                    .Should()
+                    .Be(1);
+
+                result.TenantId
+                    .Should()
+                    .NotBeNullOrEmpty()
+                    .And
+                    .BeEquivalentTo("");
+
+                result.AccessToken
+                    .Should()
+                    .NotBeNullOrEmpty();
+
+                result.RefreshToken
+                    .Should()
+                    .NotBeNullOrEmpty();
+
+                result.ExpiresIn
+                    .Should()
+                    .BeGreaterThan(0)
+                    .And
+                    .Be(3600);
             });
         }
 
