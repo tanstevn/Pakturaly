@@ -8,7 +8,5 @@ namespace Pakturaly.Data.Entities {
         public DateTime? DeletedAt { get; set; }
 
         public virtual Tenant Tenant { get; set; } = default!;
-        public virtual UserIdentity Identity { get; set; } = default!;
-        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = default!;
     }
 }
