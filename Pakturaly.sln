@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Api", "Pakturaly.Api\Pakturaly.Api.csproj", "{ED7795FA-12E4-4EEA-A083-BFF0F8DD8E13}"
 EndProject
@@ -15,9 +15,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Shared", "Paktura
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests", "_Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Integration.Tests", "Pakturaly.Integration.Tests\Pakturaly.Integration.Tests.csproj", "{EAED6DBA-3520-44DA-8172-17EC76E74258}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Unit.Tests", "Pakturaly.Unit.Tests\Pakturaly.Unit.Tests.csproj", "{B71888B8-6E46-47BA-B224-A48612E11FD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pakturaly.Integration.Tests", "Pakturaly.Integration.Tests\Pakturaly.Integration.Tests.csproj", "{6B83BEFC-8DDE-4310-A15E-4211BAB73A41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,21 +45,21 @@ Global
 		{932D585C-350E-40D3-87A4-5E3FCD862655}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{932D585C-350E-40D3-87A4-5E3FCD862655}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{932D585C-350E-40D3-87A4-5E3FCD862655}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EAED6DBA-3520-44DA-8172-17EC76E74258}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EAED6DBA-3520-44DA-8172-17EC76E74258}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EAED6DBA-3520-44DA-8172-17EC76E74258}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EAED6DBA-3520-44DA-8172-17EC76E74258}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B71888B8-6E46-47BA-B224-A48612E11FD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B71888B8-6E46-47BA-B224-A48612E11FD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B71888B8-6E46-47BA-B224-A48612E11FD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B71888B8-6E46-47BA-B224-A48612E11FD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B83BEFC-8DDE-4310-A15E-4211BAB73A41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B83BEFC-8DDE-4310-A15E-4211BAB73A41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B83BEFC-8DDE-4310-A15E-4211BAB73A41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B83BEFC-8DDE-4310-A15E-4211BAB73A41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{EAED6DBA-3520-44DA-8172-17EC76E74258} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{B71888B8-6E46-47BA-B224-A48612E11FD6} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{6B83BEFC-8DDE-4310-A15E-4211BAB73A41} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {38C0EA75-280D-4C84-846A-BF57844D06E2}

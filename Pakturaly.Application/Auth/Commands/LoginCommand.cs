@@ -6,7 +6,7 @@ using Pakturaly.Application.Extensions;
 using Pakturaly.Data;
 using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
-using Pakturaly.Shared.Exceptions;
+using Pakturaly.Shared.Utils;
 
 namespace Pakturaly.Application.Auth.Commands {
     public class LoginCommand : ICommand<LoginCommandResult> {
@@ -27,15 +27,19 @@ namespace Pakturaly.Application.Auth.Commands {
         public LoginCommandValidator() {
             RuleFor(param => param.Email)
                 .NotEmpty()
-                .WithMessage(param => $"{nameof(param.Email)} should not be empty.")
+                    .WithMessage(param => $"{nameof(param.Email)} should not be empty.")
+                    .WithErrorCode(ErrorCodeConstants.NOT_EMPTY)
                 .EmailAddress()
-                .WithMessage(param => $"{nameof(param.Email)} is not a valid email address.")
+                    .WithMessage(param => $"{nameof(param.Email)} is not a valid email address.")
+                    .WithErrorCode(ErrorCodeConstants.INVALID_EMAIL)
                 .MaximumLength(64)
-                .WithMessage(param => $"{nameof(param.Email)} has a maximum characters limit of 64 only.");
+                    .WithMessage(param => $"{nameof(param.Email)} has a maximum characters limit of 64 only.")
+                    .WithErrorCode(ErrorCodeConstants.MAX_CHARS_LIMIT);
 
             RuleFor(param => param.Password)
                 .NotEmpty()
-                .WithMessage(param => $"{nameof(param.Password)} should not be empty.");
+                    .WithMessage(param => $"{nameof(param.Password)} should not be empty.")
+                    .WithErrorCode(ErrorCodeConstants.NOT_EMPTY);
         }
     }
 
@@ -43,14 +47,19 @@ namespace Pakturaly.Application.Auth.Commands {
         private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<UserIdentity> _userManager;
         private readonly IConfiguration _config;
+        private readonly IValidator<LoginCommand> _validator;
 
-        public LoginCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager, IConfiguration config) {
+        public LoginCommandHandler(ApplicationDbContext dbContext, UserManager<UserIdentity> userManager, 
+            IConfiguration config, IValidator<LoginCommand> validator) {
             _dbContext = dbContext;
             _userManager = userManager;
             _config = config;
+            _validator = validator;
         }
 
         public async Task<LoginCommandResult> HandleAsync(LoginCommand request, CancellationToken cancellationToken = default) {
+            await _validator.ValidateAndThrowAsync(request, cancellationToken);
+
             var user = await _dbContext.Users
                 .AsTracking()
                 .SingleOrDefaultAsync(user => user.Identity.Email == request.Email,
