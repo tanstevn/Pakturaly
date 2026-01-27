@@ -7,7 +7,7 @@ using Pakturaly.Infrastructure.Abstractions;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Pakturaly.Data {
-    public sealed class ApplicationDbContext : IdentityUserContext<UserIdentity> {
+    public sealed class ApplicationDbContext : DbContext {
         private readonly Guid _tenantId;
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, ITenantService tenantService) : base(options) {
@@ -17,7 +17,6 @@ namespace Pakturaly.Data {
 
         public new DbSet<User> Users { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
@@ -26,9 +25,6 @@ namespace Pakturaly.Data {
             if (_tenantId != Guid.Empty) {
                 modelBuilder.Entity<User>()
                     .HasQueryFilter(user => user.TenantId == _tenantId);
-
-                modelBuilder.Entity<UserIdentity>()
-                    .HasQueryFilter(identity => identity.User.TenantId == _tenantId);
             }
             #endregion
 

@@ -10,18 +10,6 @@ namespace Pakturaly.Data.Configurations {
                 .HasForeignKey(user => user.TenantId)
                 .IsRequired();
 
-            builder.HasOne(user => user.Identity)
-                .WithOne(userIdentity => userIdentity.User);
-
-            builder.HasMany(user => user.RefreshTokens)
-                .WithOne(refreshToken => refreshToken.User);
-
-            builder.Navigation(user => user.Identity)
-                .AutoInclude();
-
-            builder.Navigation(user => user.RefreshTokens)
-                .AutoInclude();
-
             builder.HasIndex(user => user.TenantId);
             base.Configure(builder);
         }

@@ -6,13 +6,11 @@ using Microsoft.IdentityModel.Tokens;
 using Pakturaly.Api.Middlewares;
 using Pakturaly.Application;
 using Pakturaly.Data;
-using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
 using Pakturaly.Infrastructure.Extensions;
 using Pakturaly.Infrastructure.Services;
 using Scalar.AspNetCore;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
 
 namespace Pakturaly.Api {
     public static class DependencyInjection {
@@ -35,35 +33,28 @@ namespace Pakturaly.Api {
             services.AddMediatorFromAssembly(typeof(MediatorAnchor).Assembly);
             services.AddValidatorsFromAssembly(typeof(MediatorAnchor).Assembly);
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(config.GetConnectionString("Pakturaly")));
-
             services
-                .AddIdentityCore<UserIdentity>(options => {
-                    options.Password.RequireDigit = true;
-                    options.Password.RequireLowercase = true;
-                    options.Password.RequireUppercase = true;
-                    options.Password.RequireNonAlphanumeric = true;
-                    options.Password.RequiredLength = 8;
-                    options.Password.RequiredUniqueChars = 1;
-                })
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-
-            var rsa = RSA.Create();
-            rsa.ImportFromPem(config["PublicKey"]);
-
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => {
-                    options.TokenValidationParameters = new TokenValidationParameters {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new RsaSecurityKey(rsa),
+                    var keycloakConfig = config.GetSection("Keycloak");
+
+                    options.Authority = $"{keycloakConfig["Domain"]}/realms/{keycloakConfig["Realm"]}";
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new() {
                         ValidateIssuer = true,
+                        ValidIssuer = $"{keycloakConfig["Domain"]}/realms/{keycloakConfig["Realm"]}",
                         ValidateAudience = true,
-                        ValidIssuer = config["Jwt:Issuer"],
-                        ValidAudience = config["Jwt:Audience"],
-                        ValidateLifetime = true
+                        ValidAudience = $"{keycloakConfig["Audience"]}"
                     };
                 });
+
+            // Maybe try to apply dynamic policies later?
+            services.AddAuthorization(options => {
+                // Add policies here
+            });
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(config.GetConnectionString("Pakturaly")));
 
             services.AddOpenApi(options => {
                 options.AddDocumentTransformer((document, context, _) => {
@@ -100,8 +91,8 @@ namespace Pakturaly.Api {
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();       
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
@@ -115,7 +106,6 @@ namespace Pakturaly.Api {
             });
 
             // Middlewares here
-            
 
             InitializeRequiredServices(app);
         }
