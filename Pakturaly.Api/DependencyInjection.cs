@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Pakturaly.Api.Middlewares;
 using Pakturaly.Application;
 using Pakturaly.Data;
@@ -30,6 +32,26 @@ namespace Pakturaly.Api {
 
             services.AddMediatorFromAssembly(typeof(MediatorAnchor).Assembly);
             services.AddValidatorsFromAssembly(typeof(MediatorAnchor).Assembly);
+
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options => {
+                    var keycloakConfig = config.GetSection("Keycloak");
+
+                    options.Authority = $"{keycloakConfig["Domain"]}/realms/{keycloakConfig["Realm"]}";
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new() {
+                        ValidateIssuer = true,
+                        ValidIssuer = $"{keycloakConfig["Domain"]}/realms/{keycloakConfig["Realm"]}",
+                        ValidateAudience = true,
+                        ValidAudience = $"{keycloakConfig["Audience"]}"
+                    };
+                });
+
+            // Maybe try to apply dynamic policies later?
+            services.AddAuthorization(options => {
+                // Add policies here
+            });
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(config.GetConnectionString("Pakturaly")));
@@ -69,8 +91,8 @@ namespace Pakturaly.Api {
 
             app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();       
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllers();
@@ -84,7 +106,6 @@ namespace Pakturaly.Api {
             });
 
             // Middlewares here
-            
 
             InitializeRequiredServices(app);
         }

@@ -11,7 +11,8 @@ namespace Pakturaly.Api.Middlewares {
         }
 
         public ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken) {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return default!;
         }
     }
 }

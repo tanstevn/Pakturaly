@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Pakturaly.Application;
 using Pakturaly.Data;
-using Pakturaly.Data.Entities;
 using Pakturaly.Infrastructure.Abstractions;
 using Pakturaly.Infrastructure.Services;
 

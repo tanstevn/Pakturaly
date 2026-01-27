@@ -5,7 +5,7 @@ namespace Pakturaly.Infrastructure.Services {
     public sealed class MediatorService : IMediator {
         private readonly IServiceProvider _serviceProvider;
         private readonly ConcurrentDictionary<Type, IMediatorExecutor> _requestHandlers;
-        
+
         public MediatorService(IServiceProvider serviceProvider) {
             _serviceProvider = serviceProvider;
             _requestHandlers = new();
